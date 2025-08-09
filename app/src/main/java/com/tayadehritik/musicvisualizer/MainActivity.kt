@@ -3,6 +3,8 @@ package com.tayadehritik.musicvisualizer
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.media.AudioTrack
+import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val mediaPlayer = MediaPlayer.create(this, R.raw.test_song)
         enableEdgeToEdge()
         setContent {
             val permissionGrantedNow = permissionGranted.collectAsState()
@@ -54,7 +57,8 @@ class MainActivity : ComponentActivity() {
                                 context,
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
-                                val visualizer = Visualizer(0)
+                                mediaPlayer.start()
+                                val visualizer = Visualizer(mediaPlayer.audioSessionId)
                                 visualizer.setDataCaptureListener(myDataCaptureListener, Visualizer.getMaxCaptureRate(), true, true)
                                 visualizer.setEnabled(true)
                                 PermissionGranted()
