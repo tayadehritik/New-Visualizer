@@ -3,6 +3,7 @@ package com.tayadehritik.musicvisualizer
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.media.audiofx.Visualizer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +38,8 @@ class MainActivity : ComponentActivity() {
             _permissionGranted.value = isGranted
         }
 
+    val myDataCaptureListener = MyDataCaptureListener()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -51,6 +54,9 @@ class MainActivity : ComponentActivity() {
                                 context,
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
+                                val visualizer = Visualizer(0)
+                                visualizer.setDataCaptureListener(myDataCaptureListener, Visualizer.getMaxCaptureRate(), true, true)
+                                visualizer.setEnabled(true)
                                 PermissionGranted()
                             }
                             ActivityCompat.shouldShowRequestPermissionRationale(
