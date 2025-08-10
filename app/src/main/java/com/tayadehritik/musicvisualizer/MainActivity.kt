@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.tayadehritik.musicvisualizer.presentation.PermissionGranted
 import com.tayadehritik.musicvisualizer.ui.theme.MusicVisualizerTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,8 +70,7 @@ class MainActivity : ComponentActivity() {
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
                                 mediaPlayer.start()
-                                PermissionGranted()
-                                Box(modifier = Modifier.width(20.dp).height(fftData.value.toInt().dp).background(Color.Red))
+                                PermissionGranted(fftData.value)
                             }
                             ActivityCompat.shouldShowRequestPermissionRationale(
                                 context as Activity, Manifest.permission.RECORD_AUDIO
@@ -119,14 +119,6 @@ class MainActivity : ComponentActivity() {
 fun NeedPermission() {
     Text(
         text = "Need permission to record audio",
-        style = MaterialTheme.typography.titleLarge,
-    )
-}
-
-@Composable
-fun PermissionGranted() {
-    Text(
-        text = "Permission granted",
         style = MaterialTheme.typography.titleLarge,
     )
 }
