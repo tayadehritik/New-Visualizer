@@ -7,6 +7,7 @@ import android.media.AudioTrack
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,15 +41,17 @@ class MainActivity : ComponentActivity() {
             _permissionGranted.value = isGranted
         }
 
+    var visualizer: Visualizer? = null
     val myDataCaptureListener = MyDataCaptureListener()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mediaPlayer = MediaPlayer.create(this, R.raw.test_song)
+
         enableEdgeToEdge()
         setContent {
             val permissionGrantedNow = permissionGranted.collectAsState()
             val context = LocalContext.current
+
             MusicVisualizerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize().padding(24.dp)) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
@@ -57,10 +60,6 @@ class MainActivity : ComponentActivity() {
                                 context,
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
-                                mediaPlayer.start()
-                                val visualizer = Visualizer(mediaPlayer.audioSessionId)
-                                visualizer.setDataCaptureListener(myDataCaptureListener, Visualizer.getMaxCaptureRate(), true, true)
-                                visualizer.setEnabled(true)
                                 PermissionGranted()
                             }
                             ActivityCompat.shouldShowRequestPermissionRationale(
@@ -79,6 +78,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("OnResume", "onResume called")
+        if(permissionGranted.value || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            visualizer = Visualizer(0)
+            visualizer?.setDataCaptureListener(myDataCaptureListener, Visualizer.getMaxCaptureRate(), true, true)
+            visualizer?.setEnabled(true)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        visualizer?.release()
+        visualizer = null
+        Log.d("OnPause", "onPause called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        visualizer?.release()
+        visualizer = null
+        Log.d("OnDestroy", "onDestroy called")
     }
 }
 
