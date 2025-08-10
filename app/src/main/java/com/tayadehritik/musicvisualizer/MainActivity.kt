@@ -43,10 +43,12 @@ class MainActivity : ComponentActivity() {
 
     var visualizer: Visualizer? = null
     val myDataCaptureListener = MyDataCaptureListener()
+    var audioSession:Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val mediaPlayer = MediaPlayer.create(this, R.raw.test_song)
+        audioSession = mediaPlayer.audioSessionId
         enableEdgeToEdge()
         setContent {
             val permissionGrantedNow = permissionGranted.collectAsState()
@@ -60,6 +62,7 @@ class MainActivity : ComponentActivity() {
                                 context,
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
+                                mediaPlayer.start()
                                 PermissionGranted()
                             }
                             ActivityCompat.shouldShowRequestPermissionRationale(
@@ -83,8 +86,8 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Log.d("OnResume", "onResume called")
-        if(permissionGranted.value || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            visualizer = Visualizer(0)
+        if(permissionGranted.value || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && audioSession != null) {
+            visualizer = Visualizer(audioSession!!)
             visualizer?.setDataCaptureListener(myDataCaptureListener, Visualizer.getMaxCaptureRate(), true, true)
             visualizer?.setEnabled(true)
         }
