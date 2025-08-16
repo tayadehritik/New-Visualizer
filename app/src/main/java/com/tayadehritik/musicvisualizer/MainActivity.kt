@@ -58,7 +58,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val permissionGrantedNow = permissionGranted.collectAsState()
-            val magnitudes = myDataCaptureListener.magnitudes.collectAsState()
+            val magnitudesAvg = myDataCaptureListener.magnitudesAvg.collectAsState()
+            val magnitudesMax = myDataCaptureListener.magnitudesMax.collectAsState()
             val context = LocalContext.current
 
             MusicVisualizerTheme {
@@ -70,7 +71,7 @@ class MainActivity : ComponentActivity() {
                                 Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED || permissionGrantedNow.value -> {
                                 mediaPlayer.start()
-                                PermissionGranted(magnitudes.value)
+                                PermissionGranted(magnitudesAvg.value, magnitudesMax.value)
                             }
                             ActivityCompat.shouldShowRequestPermissionRationale(
                                 context as Activity, Manifest.permission.RECORD_AUDIO

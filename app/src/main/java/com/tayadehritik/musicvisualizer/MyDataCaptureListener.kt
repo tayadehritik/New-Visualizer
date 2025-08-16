@@ -16,8 +16,12 @@ Visualizer.OnDataCaptureListener{
     // Number of logarithmic frequency bands for visualization
     private val NUM_BANDS = 128
     
-    val _magnitudes = MutableStateFlow<FloatArray>(floatArrayOf())
-    val magnitudes = _magnitudes.asStateFlow()
+    val _magnitudesAvg = MutableStateFlow<FloatArray>(floatArrayOf())
+    val magnitudesAvg = _magnitudesAvg.asStateFlow()
+
+    val _magnitudesMax = MutableStateFlow<FloatArray>(floatArrayOf())
+    val magnitudesMax = _magnitudesMax.asStateFlow()
+
 
     override fun onWaveFormDataCapture(p0: Visualizer?, p1: ByteArray?, p2: Int) {
     }
@@ -40,7 +44,8 @@ Visualizer.OnDataCaptureListener{
             }
             
             // Apply logarithmic frequency binning
-            val logBands = FloatArray(NUM_BANDS)
+            val logBandsAvg = FloatArray(NUM_BANDS)
+            val logBandsMax = FloatArray(NUM_BANDS)
             val minIndex = 1
             val maxIndex = n / 2 - 1
             val logMin = ln(minIndex.toFloat())
@@ -52,12 +57,14 @@ Visualizer.OnDataCaptureListener{
                 val nextIndexProgress = (index + 1).toFloat() / NUM_BANDS
                 val startIndex = exp(logMin + (logRange * progress)).roundToInt()
                 val endIndex = exp(logMin + (logRange * nextIndexProgress)).roundToInt()
+                val avgVal = magnitudes.slice(startIndex..endIndex).average().toFloat().coerceAtLeast(1f)
                 val maxVal = magnitudes.slice(startIndex..endIndex).maxOrNull() ?: 0f
-                logBands[index] = maxVal
-
+                logBandsAvg[index] = avgVal
+                logBandsMax[index] = maxVal
             }
 
-            _magnitudes.value = logBands
+            _magnitudesAvg.value = logBandsAvg
+            _magnitudesMax.value = logBandsMax
         }
     }
 }
