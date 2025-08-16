@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 class MyDataCaptureListener:
 Visualizer.OnDataCaptureListener{
     // Number of logarithmic frequency bands for visualization
-    private val NUM_BANDS = 32
+    private val NUM_BANDS = 128
     
     val _magnitudes = MutableStateFlow<FloatArray>(floatArrayOf())
     val magnitudes = _magnitudes.asStateFlow()
@@ -43,21 +43,20 @@ Visualizer.OnDataCaptureListener{
             val logBands = FloatArray(NUM_BANDS)
             val minIndex = 1
             val maxIndex = n / 2 - 1
-            val logRange = ln(minIndex.toFloat())  + (ln(maxIndex.toFloat()) - ln(minIndex.toFloat()))
+            val logMin = ln(minIndex.toFloat())
+            val logMax = ln(maxIndex.toFloat())
+            val logRange = logMax - logMin
 
-            // TODO(human): Implement logarithmic binning logic
             for(index in 0..<NUM_BANDS) {
                 val progress = index.toFloat() / NUM_BANDS
                 val nextIndexProgress = (index + 1).toFloat() / NUM_BANDS
-                val startIndex = exp(logRange * progress).roundToInt()
-                val endIndex = exp(logRange * nextIndexProgress).roundToInt()
+                val startIndex = exp(logMin + (logRange * progress)).roundToInt()
+                val endIndex = exp(logMin + (logRange * nextIndexProgress)).roundToInt()
                 val maxVal = magnitudes.slice(startIndex..endIndex).maxOrNull() ?: 0f
                 logBands[index] = maxVal
 
             }
-            // Map the linear FFT bins (magnitudes array) to logarithmic frequency bands (logBands array)
-            // Use ln() and exp() for logarithmic distribution of band boundaries
-            
+
             _magnitudes.value = logBands
         }
     }

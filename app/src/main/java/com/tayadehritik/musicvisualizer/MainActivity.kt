@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mediaPlayer = MediaPlayer.create(this, R.raw.test_music)
+        val mediaPlayer = MediaPlayer.create(this, R.raw.test_song)
         audioSession = mediaPlayer.audioSessionId
         enableEdgeToEdge()
         setContent {
