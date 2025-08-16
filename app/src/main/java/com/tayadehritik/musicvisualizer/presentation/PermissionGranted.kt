@@ -2,6 +2,7 @@ package com.tayadehritik.musicvisualizer.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,15 @@ fun PermissionGranted(
         style = MaterialTheme.typography.titleLarge,
     )
     if(magnitudes.isNotEmpty()) {
-        Box(modifier = Modifier.width(20.dp).height(magnitudes[0].toInt().dp).background(Color.Red))
+        Row {
+            magnitudes.take(100).forEach { magnitude ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(magnitude.toInt().dp)
+                        .background(Color.Red)
+                )
+            }
+        }
     }
 }
