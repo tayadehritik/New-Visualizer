@@ -7,9 +7,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
+import kotlin.math.ln
+import kotlin.math.exp
+import kotlin.math.roundToInt
 
 class MyDataCaptureListener:
 Visualizer.OnDataCaptureListener{
+    // Number of logarithmic frequency bands for visualization
+    private val NUM_BANDS = 32
+    
     val _magnitudes = MutableStateFlow<FloatArray>(floatArrayOf())
     val magnitudes = _magnitudes.asStateFlow()
 
@@ -32,7 +38,27 @@ Visualizer.OnDataCaptureListener{
                 magnitudes[k] = hypot(fft[i].toFloat(), fft[i + 1].toFloat())
                 phases[k] = atan2(fft[i + 1].toFloat(), fft[i].toFloat())
             }
-            _magnitudes.value = magnitudes
+            
+            // Apply logarithmic frequency binning
+            val logBands = FloatArray(NUM_BANDS)
+            val minIndex = 1
+            val maxIndex = n / 2 - 1
+            val logRange = ln(minIndex.toFloat())  + (ln(maxIndex.toFloat()) - ln(minIndex.toFloat()))
+
+            // TODO(human): Implement logarithmic binning logic
+            for(index in 0..<NUM_BANDS) {
+                val progress = index.toFloat() / NUM_BANDS
+                val nextIndexProgress = (index + 1).toFloat() / NUM_BANDS
+                val startIndex = exp(logRange * progress).roundToInt()
+                val endIndex = exp(logRange * nextIndexProgress).roundToInt()
+                val maxVal = magnitudes.slice(startIndex..endIndex).maxOrNull() ?: 0f
+                logBands[index] = maxVal
+
+            }
+            // Map the linear FFT bins (magnitudes array) to logarithmic frequency bands (logBands array)
+            // Use ln() and exp() for logarithmic distribution of band boundaries
+            
+            _magnitudes.value = logBands
         }
     }
 }
